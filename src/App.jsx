@@ -54,34 +54,21 @@ function App() {
     e.preventDefault();
     const f = e.target;
 
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/auth/login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: f.email.value,
-            password: f.password.value
-          })
-        }
-      );
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: f.email.value,
+        password: f.password.value
+      })
+    });
 
-      const data = await res.json();
-      if (!data.token) throw new Error();
-
-      localStorage.setItem("token", data.token);
-      setToken(data.token);
-
-      const d = decodeToken(data.token);
-      setRole(d.role);
-      setUserId(d.id);
-
-      toast.success("Login successful");
-    } catch {
-      toast.error("Invalid credentials");
-    }
+    const data = await res.json();
+    localStorage.setItem("token", data.token);
+    setToken(data.token);
   };
+
+
 
   /* ================= LOGOUT ================= */
   const logout = () => {
@@ -109,11 +96,12 @@ function App() {
     let url = `${import.meta.env.VITE_API_URL}/api/complaints`;
     if (role === "user") url += `?userId=${userId}`;
 
-    fetch(url, {
+    fetch(`${import.meta.env.VITE_API_URL}/api/complaints`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
     })
+
       .then(res => res.json())
       .then(data => {
         setComplaints(data);
