@@ -11,7 +11,6 @@ function App() {
   const [complaints, setComplaints] = useState([]);
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(false);
-
   const [darkMode, setDarkMode] = useState(false);
 
   /* ================= TOKEN DECODE ================= */
@@ -24,14 +23,17 @@ function App() {
     const f = e.target;
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/admin/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: f.username.value,
-          password: f.password.value
-        })
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/auth/admin/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: f.username.value,
+            password: f.password.value
+          })
+        }
+      );
 
       const data = await res.json();
       if (!data.token) throw new Error();
@@ -53,17 +55,17 @@ function App() {
     const f = e.target;
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          email: f.email.value,
-          password: f.password.value
-        })
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: f.email.value,
+            password: f.password.value
+          })
+        }
+      );
 
       const data = await res.json();
       if (!data.token) throw new Error();
@@ -107,7 +109,11 @@ function App() {
     let url = `${import.meta.env.VITE_API_URL}/api/complaints`;
     if (role === "user") url += `?userId=${userId}`;
 
-    fetch(url)
+    fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
       .then(res => res.json())
       .then(data => {
         setComplaints(data);
@@ -123,11 +129,15 @@ function App() {
   useEffect(() => {
     if (activeTab !== "notices") return;
 
-    fetch(`${import.meta.env.VITE_API_URL}/api/notices`)
+    fetch(`${import.meta.env.VITE_API_URL}/api/notices`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
       .then(res => res.json())
       .then(data => setNotices(data))
       .catch(() => toast.error("Failed to load notices"));
-  }, [activeTab]);
+  }, [activeTab, token]);
 
   /* ================= ADD COMPLAINT ================= */
   const addComplaint = async (e) => {
@@ -135,18 +145,21 @@ function App() {
     const f = e.target;
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/complaints`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token
-        },
-        body: JSON.stringify({
-          hostelId: f.hostelId.value,
-          title: f.title.value,
-          category: f.category.value
-        })
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/complaints`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            hostelId: f.hostelId.value,
+            title: f.title.value,
+            category: f.category.value
+          })
+        }
+      );
 
       if (!res.ok) throw new Error();
 
@@ -187,7 +200,6 @@ function App() {
       <div className="min-h-screen flex bg-gray-100 dark:bg-gray-900 dark:text-white">
         <Toaster position="top-right" />
 
-        {/* SIDEBAR */}
         <div className="w-64 bg-white dark:bg-gray-800 shadow p-4">
           <h2 className="text-2xl font-bold mb-4 text-center">HostelMate</h2>
 
@@ -202,15 +214,12 @@ function App() {
             <button onClick={() => setActiveTab("complaints")} className="w-full text-left p-2 rounded">
               Complaints
             </button>
-
             <button onClick={() => setActiveTab("notices")} className="w-full text-left p-2 rounded">
               Notices
             </button>
-
             <button onClick={() => setActiveTab("laundry")} className="w-full text-left p-2 rounded">
               Laundry
             </button>
-
             <button onClick={() => setActiveTab("services")} className="w-full text-left p-2 rounded">
               Services
             </button>
@@ -221,40 +230,14 @@ function App() {
           </button>
         </div>
 
-        {/* MAIN */}
         <div className="flex-1 p-6">
           <h1 className="text-3xl font-bold mb-6">
             {role === "admin" ? "Admin Dashboard" : "User Dashboard"}
           </h1>
 
-          {activeTab === "laundry" && (
-            <div className="bg-white dark:bg-gray-800 p-6 rounded shadow">
-              <h2 className="text-2xl font-bold mb-4">Laundry Service</h2>
-
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  toast.success("Laundry request submitted");
-                  e.target.reset();
-                }}
-                className="flex flex-col gap-3 max-w-md"
-              >
-                <input placeholder="Hostel / Room Number" className="border p-2 rounded dark:bg-gray-700" required />
-                <select className="border p-2 rounded dark:bg-gray-700" required>
-                  <option>Wash</option>
-                  <option>Wash and Iron</option>
-                  <option>Iron Only</option>
-                </select>
-                <input type="number" placeholder="Number of Clothes" className="border p-2 rounded dark:bg-gray-700" required />
-                <button className="bg-blue-600 text-white py-2 rounded">Submit</button>
-              </form>
-            </div>
-          )}
-
           {activeTab === "services" && (
             <div className="bg-white dark:bg-gray-800 p-6 rounded shadow">
               <h2 className="text-2xl font-bold mb-6">Hostel Services</h2>
-
               {["Electrician", "Plumber", "Carpenter", "Housekeeping"].map(service => (
                 <div key={service} className="border p-4 rounded flex justify-between items-center mb-3">
                   <span>{service}</span>
