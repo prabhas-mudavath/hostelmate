@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
 import {
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
+  PieChart, Pie, Cell,
+  BarChart, Bar,
+  LineChart, Line,
+  XAxis, YAxis, Tooltip,
   ResponsiveContainer
 } from "recharts";
+import {
+  FileWarning, Bell, Wrench, LogOut
+} from "lucide-react";
 
 /* ================= SAFE TOKEN DECODE ================= */
 const decodeToken = (token) => {
@@ -24,9 +23,6 @@ const decodeToken = (token) => {
   }
 };
 
-
-
-
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [role, setRole] = useState(null);
@@ -34,12 +30,9 @@ function App() {
   const [activeTab, setActiveTab] = useState("complaints");
   const [darkMode, setDarkMode] = useState(false);
 
-
   const [complaints, setComplaints] = useState([]);
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(false);
-
-
 
   /* ================= INIT ================= */
   useEffect(() => {
@@ -52,15 +45,14 @@ function App() {
     setRole(decoded.role || "user");
     setUserId(decoded.id);
   }, [token]);
+
+  /* ================= FETCH COMPLAINTS ================= */
   useEffect(() => {
     if (!token || activeTab !== "complaints") return;
-
     setLoading(true);
 
     fetch(`${import.meta.env.VITE_API_URL}/api/complaints`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
       .then(data => {
@@ -72,106 +64,119 @@ function App() {
         setLoading(false);
       });
   }, [activeTab, token]);
+
+  /* ================= FETCH NOTICES ================= */
   useEffect(() => {
     if (!token || activeTab !== "notices") return;
 
     fetch(`${import.meta.env.VITE_API_URL}/api/notices`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
       .then(data => setNotices(data))
       .catch(() => toast.error("Failed to load notices"));
   }, [activeTab, token]);
 
-  /* ================= USER LOGIN ================= */
+  /* ================= LOGIN ================= */
   const userLogin = async (e) => {
     e.preventDefault();
     const f = e.target;
 
-    const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/auth/login`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: f.email.value,
-          password: f.password.value
-        })
-      }
-    );
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: f.email.value,
+        password: f.password.value
+      })
+    });
 
     const data = await res.json();
-
-    if (!data.token) {
-      toast.error("Login failed");
-      return;
-    }
+    if (!data.token) return toast.error("Login failed");
 
     localStorage.setItem("token", data.token);
     setToken(data.token);
     toast.success("Login successful");
   };
 
-  /* ================= ADMIN LOGIN ================= */
   const adminLogin = async (e) => {
     e.preventDefault();
     const f = e.target;
 
-    const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/auth/admin/login`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: f.username.value,
-          password: f.password.value
-        })
-      }
-    );
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/admin/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: f.username.value,
+        password: f.password.value
+      })
+    });
 
     const data = await res.json();
-
-    if (!data.token) {
-      toast.error("Admin login failed");
-      return;
-    }
+    if (!data.token) return toast.error("Admin login failed");
 
     localStorage.setItem("token", data.token);
     setToken(data.token);
     toast.success("Admin login successful");
   };
+
+  const logout = () => {
+    localStorage.clear();
+    setToken(null);
+    toast.success("Logged out");
+  };
+
+  /* ================= ANALYTICS ================= */
   const totalComplaints = complaints.length;
   const openComplaints = complaints.filter(c => c.status === "open").length;
   const resolvedComplaints = complaints.filter(c => c.status === "resolved").length;
 
-  /* ================= LOGOUT ================= */
-  const logout = () => {
-    localStorage.clear();
-    setToken(null);
-    setRole(null);
-    setUserId(null);
-    toast.success("Logged out");
+  const categoryData = [
+    { name: "Water", count: complaints.filter(c => c.category === "water").length },
+    { name: "Electrical", count: complaints.filter(c => c.category === "electrical").length },
+    { name: "Mess", count: complaints.filter(c => c.category === "mess").length }
+  ];
+
+  const monthlyMap = {};
+  complaints.forEach(c => {
+    const month = new Date(c.createdAt).toLocaleString("default", { month: "short", year: "numeric" });
+    monthlyMap[month] = (monthlyMap[month] || 0) + 1;
+  });
+  const monthlyChartData = Object.keys(monthlyMap).map(m => ({
+    month: m,
+    count: monthlyMap[m]
+  }));
+
+  const resolveComplaint = async (id) => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/complaints/${id}/resolve`,
+        { method: "PATCH", headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (!res.ok) throw new Error();
+      toast.success("Complaint resolved");
+      setComplaints(prev => prev.map(c => c._id === id ? { ...c, status: "resolved" } : c));
+    } catch {
+      toast.error("Failed to resolve complaint");
+    }
   };
 
   /* ================= LOGIN PAGE ================= */
   if (!token) {
     return (
       <div className="min-h-screen flex justify-center items-center gap-10 bg-gray-100">
-        <Toaster position="top-right" />
-
+        <Toaster />
         <form onSubmit={userLogin} className="bg-white p-6 rounded shadow w-80">
-          <h2 className="text-xl font-bold mb-4 text-center">User Login</h2>
-          <input name="email" placeholder="Email" className="border p-2 w-full mb-2" />
-          <input name="password" type="password" placeholder="Password" className="border p-2 w-full mb-4" />
+          <h2 className="font-bold mb-4 text-center">User Login</h2>
+          <input name="email" className="border p-2 w-full mb-2" placeholder="Email" />
+          <input name="password" type="password" className="border p-2 w-full mb-4" placeholder="Password" />
           <button className="bg-blue-600 text-white w-full py-2 rounded">Login</button>
         </form>
 
         <form onSubmit={adminLogin} className="bg-white p-6 rounded shadow w-80">
-          <h2 className="text-xl font-bold mb-4 text-center">Admin Login</h2>
-          <input name="username" placeholder="Username" className="border p-2 w-full mb-2" />
-          <input name="password" type="password" placeholder="Password" className="border p-2 w-full mb-4" />
+          <h2 className="font-bold mb-4 text-center">Admin Login</h2>
+          <input name="username" className="border p-2 w-full mb-2" placeholder="Username" />
+          <input name="password" type="password" className="border p-2 w-full mb-4" placeholder="Password" />
           <button className="bg-black text-white w-full py-2 rounded">Login</button>
         </form>
       </div>
@@ -179,177 +184,101 @@ function App() {
   }
 
   /* ================= DASHBOARD ================= */
-  /* ================= DASHBOARD ================= */
-return (
-  <div className={darkMode ? "dark" : ""}>
-    <Toaster position="top-right" />
-    <div className="min-h-screen flex bg-gray-100 dark:bg-gray-900 dark:text-white">
+  return (
+    <div className={darkMode ? "dark" : ""}>
+      <Toaster />
+      <div className="min-h-screen flex bg-gray-100 dark:bg-gray-900">
 
-      {/* ===== SIDEBAR ===== */}
-      <div className="w-64 bg-white dark:bg-gray-800 shadow p-4">
-        <h2 className="text-2xl font-bold mb-4 text-center">HostelMate</h2>
+        {/* SIDEBAR */}
+        <div className="w-64 bg-white dark:bg-gray-800 p-4 space-y-2">
+          <button onClick={() => setDarkMode(!darkMode)} className="border w-full py-1 rounded">
+            Toggle Mode
+          </button>
 
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="mb-4 w-full border px-3 py-1 rounded"
-        >
-          {darkMode ? "Light Mode" : "Dark Mode"}
-        </button>
-
-        <nav className="space-y-2">
-          {["complaints", "notices", "services"].map(tab => (
+          {[
+            ["complaints", <FileWarning size={18} />],
+            ["notices", <Bell size={18} />],
+            ["services", <Wrench size={18} />]
+          ].map(([tab, icon]) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`w-full text-left p-2 rounded ${
+              className={`flex items-center gap-2 w-full p-2 rounded ${
                 activeTab === tab ? "bg-blue-600 text-white" : ""
               }`}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {icon} {tab}
             </button>
           ))}
-        </nav>
 
-        <button
-          onClick={logout}
-          className="mt-6 w-full bg-gray-900 text-white py-2 rounded"
-        >
-          Logout
-        </button>
-      </div>
-
-      {/* ===== MAIN CONTENT ===== */}
-      <div className="flex-1 p-6 space-y-6">
-
-        <h1 className="text-3xl font-bold">
-          {role === "admin" ? "Admin Dashboard" : "User Dashboard"}
-        </h1>
-
-        {/* ===== STATS CARDS ===== */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
-            <h3 className="text-sm text-gray-500">Total Complaints</h3>
-            <p className="text-3xl font-bold">{totalComplaints}</p>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
-            <h3 className="text-sm text-gray-500">Open</h3>
-            <p className="text-3xl font-bold text-red-500">
-              {openComplaints}
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
-            <h3 className="text-sm text-gray-500">Resolved</h3>
-            <p className="text-3xl font-bold text-green-500">
-              {resolvedComplaints}
-            </p>
-          </div>
+          <button onClick={logout} className="flex gap-2 items-center text-red-500">
+            <LogOut size={18} /> Logout
+          </button>
         </div>
 
-        {/* ===== CHARTS ===== */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* MAIN */}
+        <div className="flex-1 p-6 space-y-6">
 
-          <div className="bg-white dark:bg-gray-800 p-6 rounded shadow">
-            <h2 className="text-xl font-bold mb-4">
-              Complaint Status Overview
-            </h2>
-            <ResponsiveContainer width="100%" height={300}>
+          {/* STATS */}
+          <div className="grid grid-cols-3 gap-4">
+            {[["Total", totalComplaints], ["Open", openComplaints], ["Resolved", resolvedComplaints]]
+              .map(([t, v]) => (
+                <div key={t} className="bg-white dark:bg-gray-800 p-4 rounded shadow">
+                  <p className="text-sm">{t}</p>
+                  <p className="text-2xl font-bold">{v}</p>
+                </div>
+              ))}
+          </div>
+
+          {/* CHARTS */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ResponsiveContainer height={300}>
               <PieChart>
-                <Pie
-                  data={[
-                    { name: "Open", value: openComplaints },
-                    { name: "Resolved", value: resolvedComplaints }
-                  ]}
-                  dataKey="value"
-                  outerRadius={100}
-                >
+                <Pie data={[{ name: "Open", value: openComplaints }, { name: "Resolved", value: resolvedComplaints }]} dataKey="value">
                   <Cell fill="#ef4444" />
                   <Cell fill="#22c55e" />
                 </Pie>
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
+
+            <ResponsiveContainer height={300}>
+              <BarChart data={categoryData}>
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#6366f1" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
 
-          {role === "admin" && (
-            <div className="bg-white dark:bg-gray-800 p-6 rounded shadow">
-              <h2 className="text-xl font-bold mb-4">
-                Complaints Breakdown
-              </h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart
-                  data={[
-                    { name: "Open", count: openComplaints },
-                    { name: "Resolved", count: resolvedComplaints }
-                  ]}
-                >
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#3b82f6" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </div>
+          <ResponsiveContainer height={300}>
+            <LineChart data={monthlyChartData}>
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Line dataKey="count" stroke="#22c55e" strokeWidth={3} />
+            </LineChart>
+          </ResponsiveContainer>
 
-        {/* ===== TAB CONTENT ===== */}
-        {loading && <p>Loading...</p>}
-
-        {activeTab === "complaints" && (
-          <div className="space-y-4">
-            {complaints.length === 0 && <p>No complaints found</p>}
-            {complaints.map(c => (
-              <div
-                key={c._id}
-                className="bg-white dark:bg-gray-800 p-4 rounded shadow"
-              >
-                <h3 className="font-bold">{c.title}</h3>
-                <p>Status: {c.status}</p>
+          {/* COMPLAINT LIST */}
+          {activeTab === "complaints" && complaints.map(c => (
+            <div key={c._id} className="bg-white dark:bg-gray-800 p-4 rounded shadow flex justify-between">
+              <div>
+                <h3>{c.title}</h3>
+                <p>{c.status}</p>
               </div>
-            ))}
-          </div>
-        )}
-
-        {activeTab === "notices" && (
-          <div className="space-y-4">
-            {notices.length === 0 && <p>No notices available</p>}
-            {notices.map(n => (
-              <div
-                key={n._id}
-                className="bg-white dark:bg-gray-800 p-4 rounded shadow"
-              >
-                <h3 className="font-bold">{n.title}</h3>
-                <p>{n.description}</p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {activeTab === "services" && (
-          <div className="grid grid-cols-2 gap-4">
-            {["Electrician", "Plumber", "Carpenter", "Housekeeping"].map(s => (
-              <div
-                key={s}
-                className="bg-white dark:bg-gray-800 p-4 rounded shadow flex justify-between"
-              >
-                <span>{s}</span>
-                <button
-                  onClick={() => toast.success("Service requested")}
-                  className="bg-green-600 text-white px-3 py-1 rounded"
-                >
-                  Request
+              {role === "admin" && c.status === "open" && (
+                <button onClick={() => resolveComplaint(c._id)} className="bg-green-600 text-white px-3 py-1 rounded">
+                  Resolve
                 </button>
-              </div>
-            ))}
-          </div>
-        )}
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
-  </div>
-);
-
+  );
 }
 
 export default App;
