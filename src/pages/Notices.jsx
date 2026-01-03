@@ -4,7 +4,10 @@ import { NOTICES_DATA } from "../data/noticesData";
 
 export default function Notices() {
   const { state } = useLocation();
-  const hostelId = state?.hostelId;
+
+  const hostelId =
+    state?.hostelId || localStorage.getItem("hostelId");
+
   const notices = NOTICES_DATA[hostelId] || [];
 
   return (
@@ -14,24 +17,23 @@ export default function Notices() {
         {/* Header */}
         <h1 className="text-xl font-semibold">Notices</h1>
         <p className="text-xs text-gray-500 mt-1">
-          {hostelId} • Hostel announcements
+          Hostel • {hostelId}
         </p>
 
-        {/* Notices List */}
         <div className="mt-6 space-y-4">
           {notices.length === 0 && (
             <p className="text-sm text-gray-500 text-center mt-10">
-              No notices for this hostel
+              No notices available
             </p>
           )}
 
           {notices.map((notice) => (
             <div
               key={notice.id}
-              className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+              className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition"
             >
-              <div className="flex justify-between items-start">
-                <div className="flex items-start gap-3">
+              <div className="flex justify-between">
+                <div className="flex gap-3">
                   <Bell className="w-5 h-5 text-blue-600 mt-1" />
                   <div>
                     <h3 className="font-medium">{notice.title}</h3>
@@ -42,7 +44,7 @@ export default function Notices() {
                 </div>
 
                 <span
-                  className={`text-xs px-2 py-1 rounded-full
+                  className={`text-xs px-2 py-1 rounded-full h-fit
                     ${
                       notice.priority === "High"
                         ? "bg-red-100 text-red-700"

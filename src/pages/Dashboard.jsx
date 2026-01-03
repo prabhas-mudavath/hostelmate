@@ -6,24 +6,31 @@ import {
   Shirt,
   AlertCircle,
   CheckCircle,
+  Sun,
 } from "lucide-react";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { state } = useLocation();
 
-  // hostel data coming from HostelSelect
-  const hostelId = state?.hostelId || "";
-  const hostelName = state?.hostelName || "";
+  /* ---------------- HOSTEL DATA (REFRESH SAFE) ---------------- */
 
-  // Mock stats (frontend only)
+  const hostelId =
+    state?.hostelId || localStorage.getItem("hostelId") || "";
+
+  const hostelName =
+    state?.hostelName || localStorage.getItem("hostelName") || "";
+
+  /* ---------------- MOCK STATS ---------------- */
+
   const stats = {
     openComplaints: 2,
     resolvedComplaints: 5,
     todaysMeals: 4,
   };
 
-  // Greeting logic
+  /* ---------------- GREETING LOGIC ---------------- */
+
   const hour = new Date().getHours();
   const greeting =
     hour < 12
@@ -38,7 +45,12 @@ export default function Dashboard() {
 
         {/* HEADER */}
         <div className="mb-6">
-          <h1 className="text-xl font-semibold">{greeting} 👋</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-semibold">{greeting}</h1>
+            {/* Emoji replaced with icon */}
+            <Sun className="w-5 h-5 text-yellow-500" />
+          </div>
+
           <p className="text-sm text-gray-600 mt-1">
             Welcome to <span className="font-medium">HostelMate</span>
           </p>
@@ -79,54 +91,41 @@ export default function Dashboard() {
         {/* ACTION CARDS */}
         <div className="grid grid-cols-2 gap-4">
 
-          {/* Mess Menu */}
           <DashboardCard
             title="Mess Menu"
             subtitle="Weekly meals"
             icon={Utensils}
             onClick={() =>
-              navigate("/mess", {
-                state: { hostelId },
-              })
+              navigate("/mess", { state: { hostelId } })
             }
           />
 
-          {/* Complaints (FIXED) */}
           <DashboardCard
             title="Complaints"
             subtitle="Raise & track"
             icon={Wrench}
             onClick={() =>
-              navigate("/complaints", {
-                state: { hostelId },
-              })
+              navigate("/complaints", { state: { hostelId } })
             }
           />
 
-          {/* Notices */}
           <DashboardCard
             title="Notices"
             subtitle="Updates"
             icon={Bell}
             onClick={() =>
-              navigate("/notices", {
-                state: { hostelId },
-              })
+              navigate("/notices", { state: { hostelId } })
             }
           />
 
-          {/* Laundry */}
           <DashboardCard
             title="Laundry"
             subtitle="Services"
             icon={Shirt}
             onClick={() =>
-              navigate("/laundry", {
-                state: { hostelId },
-              })
+              navigate("/laundry", { state: { hostelId } })
             }
           />
-
         </div>
 
       </div>

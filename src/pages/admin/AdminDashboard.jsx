@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import AdminSidebar from "./AdminSidebar";
+import AdminSidebar from "./AdminSidebar.jsx";
 
 export default function AdminDashboard() {
   const [pendingCount, setPendingCount] = useState(0);

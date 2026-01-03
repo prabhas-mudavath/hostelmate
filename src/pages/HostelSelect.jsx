@@ -108,16 +108,19 @@ export default function HostelSelect() {
         {/* Continue */}
         <button
           disabled={!selectedHostel}
-          onClick={() =>
+          onClick={() => {
+            localStorage.setItem("hostelId", selectedHostel.id);
+            localStorage.setItem("hostelName", selectedHostel.short);
+
             navigate("/dashboard", {
               state: {
                 hostelId: selectedHostel.id,
                 hostelName: selectedHostel.short,
               },
-            })
-          }
+            });
+          }}
           className={`w-full mt-6 py-3 rounded-xl font-medium transition-all active:scale-95
-            ${selectedHostel
+    ${selectedHostel
               ? "bg-primary text-white"
               : "bg-border text-textSecondary cursor-not-allowed"
             }`}

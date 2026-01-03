@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { exportWeeklyMenu } from "../utils/exportMenuPDF";
 import { HOSTEL_MESS_MAP } from "../data/hostelMessMap";
 import { MESS_MENUS } from "../data/messMenus";
-import { TickIcon, CrossIcon } from "./components/StatusIcon";
+
 
 import {
   Utensils,
@@ -13,6 +13,7 @@ import {
   Moon,
   AlarmClock,
   Download,
+  XCircle,
 } from "lucide-react";
 
 /* ---------- ICON MAP ---------- */
@@ -25,7 +26,8 @@ const MEAL_ICONS = {
 
 export default function MessMenu() {
   const { state } = useLocation();
-  const hostelId = state?.hostelId;
+  const hostelId =
+    state?.hostelId || localStorage.getItem("hostelId");
 
   /* ---------- MAP HOSTEL → MESS GROUP ---------- */
   const messKey = HOSTEL_MESS_MAP[hostelId];
@@ -35,7 +37,7 @@ export default function MessMenu() {
   if (!MENU) {
     return (
       <div className="min-h-screen flex items-center justify-center text-red-600">
-        <CrossIcon /> Menu not found for hostel: {hostelId}
+        <CrossIcon /> Menu not available for this hostel: {hostelId}
       </div>
     );
   }
@@ -55,7 +57,7 @@ export default function MessMenu() {
             </div>
             <div>
               <h1 className="text-lg font-semibold">Mess Menu</h1>
-              <p className="text-xs text-gray-400 tracking-wide">
+              <p className="text-xs text-gray-400 ">
                 {hostelId} • Weekly Schedule
               </p>
             </div>
