@@ -17,19 +17,24 @@ export default function Complaints() {
 
   /* ---------------- FETCH COMPLAINTS ---------------- */
   useEffect(() => {
-    if (!hostelId) {
-      setLoading(false);
-      return;
-    }
+    const hostelId =
+      state?.hostelId || localStorage.getItem("hostelId");
 
-    fetch(`http://localhost:5000/api/complaints/${hostelId}`)
-      .then((res) => res.json())
+    fetch(
+      `https://hostelmate-backend.onrender.com/api/complaints/${hostelId}`
+    )
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed");
+        return res.json();
+      })
       .then((data) => {
         setComplaints(data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
-  }, [hostelId]);
+      .catch(() => {
+        setLoading(false);
+      });
+  }, [state]);
 
   /* ---------------- UI STATES ---------------- */
 
@@ -90,10 +95,9 @@ export default function Complaints() {
                     <div
                       className={`w-6 h-6 rounded-full flex items-center
                         justify-center text-xs
-                        ${
-                          index <= currentStep
-                            ? "bg-blue-600 text-white"
-                            : "bg-gray-200 text-gray-400"
+                        ${index <= currentStep
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-200 text-gray-400"
                         }`}
                     >
                       {index < currentStep ? (
@@ -106,10 +110,9 @@ export default function Complaints() {
                     {index < STATUS_STEPS.length - 1 && (
                       <div
                         className={`flex-1 h-0.5 mx-1
-                          ${
-                            index < currentStep
-                              ? "bg-blue-600"
-                              : "bg-gray-200"
+                          ${index < currentStep
+                            ? "bg-blue-600"
+                            : "bg-gray-200"
                           }`}
                       />
                     )}

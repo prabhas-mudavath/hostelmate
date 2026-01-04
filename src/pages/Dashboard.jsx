@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
+
 import {
   Utensils,
   Wrench,
@@ -22,12 +25,16 @@ export default function Dashboard() {
     state?.hostelName || localStorage.getItem("hostelName") || "";
 
   /* ---------------- MOCK STATS ---------------- */
+  const [stats, setStats] = useState({
+    openComplaints: 0,
+    resolvedComplaints: 0,
+  });
 
   useEffect(() => {
-  fetch(`http://localhost:5000/api/dashboard/${hostelId}`)
-    .then(res => res.json())
-    .then(data => setStats(data));
-}, [hostelId]);
+    fetch(`http://localhost:5000/api/dashboard/${hostelId}`)
+      .then(res => res.json())
+      .then(data => setStats(data));
+  }, [hostelId]);
 
   /* ---------------- GREETING LOGIC ---------------- */
 
@@ -36,8 +43,8 @@ export default function Dashboard() {
     hour < 12
       ? "Good Morning"
       : hour < 17
-      ? "Good Afternoon"
-      : "Good Evening";
+        ? "Good Afternoon"
+        : "Good Evening";
 
   return (
     <div className="min-h-screen bg-slate-50 flex justify-center">
