@@ -23,11 +23,11 @@ export default function Dashboard() {
 
   /* ---------------- MOCK STATS ---------------- */
 
-  const stats = {
-    openComplaints: 2,
-    resolvedComplaints: 5,
-    todaysMeals: 4,
-  };
+  useEffect(() => {
+  fetch(`http://localhost:5000/api/dashboard/${hostelId}`)
+    .then(res => res.json())
+    .then(data => setStats(data));
+}, [hostelId]);
 
   /* ---------------- GREETING LOGIC ---------------- */
 

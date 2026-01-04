@@ -1,5 +1,5 @@
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { useState } from "react";
 import { toast } from "react-hot-toast";
 import {
   Shirt,
@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 
 /* ---------- PRIVATE LAUNDRY ---------- */
-
 const PRIVATE_LAUNDRY = {
   name: "Private Laundry Service",
   services: ["Dry Wash", "Normal Wash"],
@@ -22,22 +21,33 @@ const PRIVATE_LAUNDRY = {
 
 export default function Laundry() {
   const { state } = useLocation();
-
   const hostelId =
-    state?.hostelId || localStorage.getItem("hostelId") || "SSB";
-
-  const [loadingLaundry, setLoadingLaundry] = useState(false);
-  const [loadingService, setLoadingService] = useState(false);
+    state?.hostelId || localStorage.getItem("hostelId");
 
   const isCVR = hostelId === "CVR";
 
-  /* ---------- ACTIONS ---------- */
+  /* ---------- LOADING STATES ---------- */
+  const [loadingLaundry, setLoadingLaundry] = useState(false);
+  const [loadingService, setLoadingService] = useState(false);
 
+  /* ---------- REQUEST LAUNDRY ---------- */
   const requestLaundry = async () => {
     if (loadingLaundry) return;
     setLoadingLaundry(true);
 
     try {
+      const res = await fetch("http://localhost:5000/api/laundry", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          hostelId,
+          laundryType: "Hostel Laundry",
+        }),
+      });
+
+      if (!res.ok) throw new Error();
       toast.success("Laundry request submitted");
     } catch {
       toast.error("Failed to submit laundry request");
@@ -46,11 +56,24 @@ export default function Laundry() {
     }
   };
 
+  /* ---------- REQUEST SERVICE ---------- */
   const requestService = async (serviceType) => {
     if (loadingService) return;
     setLoadingService(true);
 
     try {
+      const res = await fetch("http://localhost:5000/api/services", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          hostelId,
+          serviceType,
+        }),
+      });
+
+      if (!res.ok) throw new Error();
       toast.success(`${serviceType} requested`);
     } catch {
       toast.error("Service request failed");
@@ -65,7 +88,9 @@ export default function Laundry() {
 
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-xl font-semibold">Laundry & Services</h1>
+          <h1 className="text-xl font-semibold">
+            Laundry & Services
+          </h1>
           <p className="text-xs text-gray-500 mt-1">
             Hostel • {hostelId}
           </p>
@@ -102,17 +127,23 @@ export default function Laundry() {
             onClick={requestLaundry}
             disabled={loadingLaundry}
             className={`mt-4 w-full py-2 rounded-lg text-sm text-white
-              ${loadingLaundry
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"}`}
+              ${
+                loadingLaundry
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
           >
-            {loadingLaundry ? "Submitting…" : "Request Laundry"}
+            {loadingLaundry
+              ? "Submitting…"
+              : "Request Laundry"}
           </button>
         </div>
 
         {/* PRIVATE LAUNDRY */}
         <div className="bg-white rounded-2xl p-4 shadow-sm mb-6">
-          <h2 className="font-medium mb-2">{PRIVATE_LAUNDRY.name}</h2>
+          <h2 className="font-medium mb-2">
+            {PRIVATE_LAUNDRY.name}
+          </h2>
           <p className="text-sm text-gray-600 mb-3">
             {PRIVATE_LAUNDRY.note}
           </p>
@@ -131,25 +162,34 @@ export default function Laundry() {
 
         {/* OTHER SERVICES */}
         <div>
-          <h2 className="text-lg font-medium mb-3">Other Services</h2>
+          <h2 className="text-lg font-medium mb-3">
+            Other Services
+          </h2>
+
           <div className="grid grid-cols-2 gap-4">
             <ServiceCard
               icon={Sparkles}
               title="Room Cleaning"
               desc="Request cleaning"
-              onClick={() => requestService("Room Cleaning")}
+              onClick={() =>
+                requestService("Room Cleaning")
+              }
             />
             <ServiceCard
               icon={Wrench}
               title="Electrician"
               desc="Fan & light issues"
-              onClick={() => requestService("Electrician")}
+              onClick={() =>
+                requestService("Electrician")
+              }
             />
             <ServiceCard
               icon={Droplets}
               title="Plumber"
               desc="Water leakage"
-              onClick={() => requestService("Plumber")}
+              onClick={() =>
+                requestService("Plumber")
+              }
             />
           </div>
         </div>
@@ -160,7 +200,6 @@ export default function Laundry() {
 }
 
 /* ---------- SERVICE CARD ---------- */
-
 function ServiceCard({ icon: Icon, title, desc, onClick }) {
   return (
     <div
@@ -170,8 +209,12 @@ function ServiceCard({ icon: Icon, title, desc, onClick }) {
                  active:scale-95"
     >
       <Icon className="w-5 h-5 text-blue-600 mb-2" />
-      <h3 className="text-sm font-medium">{title}</h3>
-      <p className="text-xs text-gray-500 mt-1">{desc}</p>
+      <h3 className="text-sm font-medium">
+        {title}
+      </h3>
+      <p className="text-xs text-gray-500 mt-1">
+        {desc}
+      </p>
     </div>
   );
 }
