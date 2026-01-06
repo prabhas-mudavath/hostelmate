@@ -35,17 +35,22 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    if (!hostelId) return;
+  if (!hostelId) return;
 
-    fetch(`${import.meta.env.VITE_API_URL}/api/dashboard/${hostelId}`, {
-      headers: {
-        Authorization: localStorage.getItem("token"),
-      },
+  fetch(`${import.meta.env.VITE_API_URL}/api/dashboard/${hostelId}`, {
+    headers: {
+      Authorization: localStorage.getItem("token"),
+    },
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Dashboard fetch failed");
+      return res.json();
     })
-      .then((res) => res.json())
-      .then(setStats)
-      .catch(console.error);
-  }, [hostelId]);
+    .then(setStats)
+    .catch((err) => {
+      console.error("Dashboard error:", err);
+    });
+}, [hostelId]);
 
   /* ---------------- GREETING ---------------- */
   const hour = new Date().getHours();

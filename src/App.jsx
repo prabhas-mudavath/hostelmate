@@ -21,7 +21,7 @@ export default function App() {
       <Route path="/notices" element={<Notices />} />
       <Route path="/laundry" element={<Laundry />} />
       <Route path="/services" element={<Services />} />
-      <Route path="/my-requests" element={<MyRequests />} />
+      <Route path="/my-requests" element={<div className="p-6">Coming soon</div>}/>
 
     </Routes>
   );
