@@ -20,9 +20,11 @@ router.post("/", authMiddleware, async (req, res) => {
 });
 
 /* ADMIN: VIEW ALL COMPLAINTS */
-router.get("/", authMiddleware, adminMiddleware, async (req, res) => {
-  const complaints = await Complaint.find().sort({ createdAt: -1 });
+router.get("/", async (req, res) => {
+  const { hostelId } = req.query;
+  const complaints = await Complaint.find({ hostelId });
   res.json(complaints);
 });
+
 
 export default router;

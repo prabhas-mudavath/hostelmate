@@ -1,50 +1,31 @@
 import express from "express";
-import authMiddleware from "../middleware/authMiddleware.js";
-import adminMiddleware from "../middleware/adminMiddleware.js";
-
 import Complaint from "../models/Complaints.js";
-import Laundry from "../models/Laundry.js";
-import ServiceRequest from "../models/ServiceRequest.js";
 
 const router = express.Router();
 
-router.get(
-  "/",
-  authMiddleware,
-  adminMiddleware,
-  async (req, res) => {
-    const filter =
-      req.user.role === "warden"
-        ? { hostelId: req.user.hostelId }
-        : {};
+/* DASHBOARD STATS */
+router.get("/:hostelId", async (req, res) => {
+  try {
+    const { hostelId } = req.params;
 
     const openComplaints = await Complaint.countDocuments({
-      ...filter,
+      hostelId,
       status: { $ne: "Resolved" },
     });
 
     const resolvedComplaints = await Complaint.countDocuments({
-      ...filter,
+      hostelId,
       status: "Resolved",
-    });
-
-    const laundryPending = await Laundry.countDocuments({
-      ...filter,
-      status: "Pending",
-    });
-
-    const servicePending = await ServiceRequest.countDocuments({
-      ...filter,
-      status: "Pending",
     });
 
     res.json({
       openComplaints,
       resolvedComplaints,
-      laundryPending,
-      servicePending,
+      todaysMeals: 3, // static for now
     });
+  } catch (err) {
+    res.status(500).json({ message: "Dashboard error" });
   }
-);
+});
 
 export default router;

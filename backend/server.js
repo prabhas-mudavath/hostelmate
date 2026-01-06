@@ -22,7 +22,7 @@ app.use(
       "http://localhost:5173",
       "https://hostelmate.vercel.app", // add after Vercel deploy
     ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    
     credentials: true,
   })
 );
