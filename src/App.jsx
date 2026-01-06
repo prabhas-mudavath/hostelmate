@@ -9,7 +9,7 @@ import Laundry from "./pages/Laundry";
 import Services from "./pages/Services";
 
 import UserLogin from "./pages/UserLogin";
-import AdminLogin from "./pages/AdminLogin";
+import AdminLogin from "./pages/admin/AdminLogin";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminComplaints from "./pages/admin/AdminComplaints";
