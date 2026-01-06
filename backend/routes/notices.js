@@ -1,6 +1,6 @@
 import express from "express";
 import Notice from "../models/Notice.js";
-
+import adminMiddleware from "../middleware/adminMiddleware.js";
 const router = express.Router();
 
 /* ------------------------------------------------
@@ -17,7 +17,21 @@ router.get("/:hostelId", async (req, res) => {
     res.status(500).json({ message: "Failed to fetch notices" });
   }
 });
+router.post(
+  "/",
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    const notice = await Notice.create({
+      hostelId: req.body.hostelId,
+      title: req.body.title,
+      description: req.body.description,
+      priority: req.body.priority
+    });
 
+    res.status(201).json(notice);
+  }
+);
 /* ------------------------------------------------
    CREATE NOTICE (ADMIN – USED BY admin.js)
    (You already have this working elsewhere)

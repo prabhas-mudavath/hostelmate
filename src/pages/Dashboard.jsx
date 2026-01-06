@@ -28,13 +28,20 @@ export default function Dashboard() {
   const [stats, setStats] = useState({
     openComplaints: 0,
     resolvedComplaints: 0,
+    todaysMeals: 0
   });
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/dashboard/${hostelId}`)
+    fetch(`${import.meta.env.VITE_API_URL}/api/dashboard/${hostelId}`, {
+      headers: {
+        Authorization: localStorage.getItem("token")
+      }
+    })
       .then(res => res.json())
-      .then(data => setStats(data));
+      .then(setStats)
+      .catch(console.error);
   }, [hostelId]);
+
 
   /* ---------------- GREETING LOGIC ---------------- */
 
