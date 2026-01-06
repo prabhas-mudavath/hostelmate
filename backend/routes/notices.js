@@ -1,42 +1,47 @@
 import express from "express";
+import authMiddleware from "../middleware/authMiddleware.js";
 import Notice from "../models/Notice.js";
-import adminMiddleware from "../middleware/adminMiddleware.js";
+
 const router = express.Router();
 
-/* ------------------------------------------------
-   GET NOTICES BY HOSTEL (PUBLIC – FOR USERS)
------------------------------------------------- */
-router.get("/:hostelId", async (req, res) => {
+/* ===============================
+   GET NOTICES (USER + ADMIN)
+   =============================== */
+router.get("/", async (req, res) => {
   try {
-    const notices = await Notice.find({
-      hostelId: req.params.hostelId,
-    }).sort({ createdAt: -1 });
+    const { hostelId } = req.query;
+
+    const filter = hostelId ? { hostelId } : {};
+    const notices = await Notice.find(filter).sort({ createdAt: -1 });
 
     res.json(notices);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch notices" });
   }
 });
-router.post(
-  "/",
-  authMiddleware,
-  adminMiddleware,
-  async (req, res) => {
+
+/* ===============================
+   CREATE NOTICE (ADMIN ONLY)
+   =============================== */
+router.post("/", authMiddleware, async (req, res) => {
+  try {
+    const { hostelId, title, description, priority } = req.body;
+
     const notice = await Notice.create({
-      hostelId: req.body.hostelId,
-      title: req.body.title,
-      description: req.body.description,
-      priority: req.body.priority
+      hostelId,
+      title,
+      description,
+      priority,
     });
 
-    res.status(201).json(notice);
+    res.status(201).json({
+      message: "Notice added successfully",
+      notice,
+    });
+  } catch (err) {
+    console.error("ADMIN NOTICE ERROR:", err);
+    res.status(500).json({ message: "Failed to add notice" });
   }
-);
-/* ------------------------------------------------
-   CREATE NOTICE (ADMIN – USED BY admin.js)
-   (You already have this working elsewhere)
------------------------------------------------- */
-// ❗ DO NOT duplicate admin POST here
-// Admin notice creation is already handled in /api/admin/notice
+});
 
 export default router;
