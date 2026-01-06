@@ -1,5 +1,9 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
+import AuthGate from "./components/AuthGate";
+
+import LoginChoice from "./pages/LoginChoice";
+
 import HostelSelect from "./pages/HostelSelect";
 import Dashboard from "./pages/Dashboard";
 import MessMenu from "./pages/MessMenu";
@@ -16,7 +20,6 @@ import AdminComplaints from "./pages/admin/AdminComplaints";
 import AdminNotices from "./pages/admin/AdminNotices";
 
 import AdminRoute from "./components/AdminRoute";
-import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
   return (
@@ -26,6 +29,7 @@ export default function App() {
       <Route path="/" element={<Navigate to="/login" />} />
 
       {/* AUTH */}
+      <Route path="/login-choice" element={<LoginChoice />} />
       <Route path="/login" element={<UserLogin />} />
       <Route path="/admin-login" element={<AdminLogin />} />
 
@@ -33,18 +37,18 @@ export default function App() {
       <Route
         path="/hostel-select"
         element={
-          <ProtectedRoute>
+          <AuthGate>
             <HostelSelect />
-          </ProtectedRoute>
+          </AuthGate>
         }
       />
 
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute>
+          <AuthGate>
             <Dashboard />
-          </ProtectedRoute>
+          </AuthGate>
         }
       />
 

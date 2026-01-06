@@ -4,12 +4,13 @@ import Complaint from "../models/Complaints.js";
 const router = express.Router();
 
 /* GET COMPLAINTS BY HOSTEL */
-router.get("/:hostelId", async (req, res) => {
-  const hostelId = req.params.hostelId;
+router.get("/complaints", authMiddleware, adminMiddleware, async (req, res) => {
+  const filter =
+    req.user.role === "warden"
+      ? { hostelId: req.user.hostelId }
+      : {}; // chief sees all
 
-  const complaints = await Complaint.find({ hostelId })
-    .sort({ createdAt: -1 });
-
+  const complaints = await Complaint.find(filter);
   res.json(complaints);
 });
 
