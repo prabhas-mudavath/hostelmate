@@ -1,19 +1,19 @@
 import mongoose from "mongoose";
 
-const AdminSchema = new mongoose.Schema(
-  {
-    username: String,
-    password: String,
-    role: {
-      type: String,
-      enum: ["warden", "chief"],
-      default: "warden",
-    },
-    hostelId: {
-      type: String, // SSB, CVR, ALL
-      default: "ALL",
-    },
-  }
-);
+const adminSchema = new mongoose.Schema({
+  name: String,
+  username: String,
+  password: String,
 
-export default mongoose.model("Admin", AdminSchema);
+  role: {
+    type: String,
+    enum: ["warden", "chief"]
+  },
+
+  hostelId: {
+    type: String,
+    default: null // chief warden has null
+  }
+});
+
+export default mongoose.model("Admin", adminSchema);
