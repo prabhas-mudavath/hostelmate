@@ -1,9 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
-import AuthGate from "./components/AuthGate";
-
-import LoginChoice from "./pages/LoginChoice";
-
 import HostelSelect from "./pages/HostelSelect";
 import Dashboard from "./pages/Dashboard";
 import MessMenu from "./pages/MessMenu";
@@ -12,80 +8,18 @@ import Notices from "./pages/Notices";
 import Laundry from "./pages/Laundry";
 import Services from "./pages/Services";
 
-import UserLogin from "./pages/UserLogin";
-import AdminLogin from "./pages/admin/AdminLogin";
-
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminComplaints from "./pages/admin/AdminComplaints";
-import AdminNotices from "./pages/admin/AdminNotices";
-
-import AdminRoute from "./components/AdminRoute";
-
 export default function App() {
   return (
     <Routes>
+      <Route path="/" element={<Navigate to="/hostel-select" />} />
 
-      {/* DEFAULT */}
-      <Route path="/" element={<Navigate to="/login" />} />
-
-      {/* AUTH */}
-      <Route path="/login-choice" element={<LoginChoice />} />
-      <Route path="/login" element={<UserLogin />} />
-      <Route path="/admin-login" element={<AdminLogin />} />
-
-      {/* USER FLOW */}
-      <Route
-        path="/hostel-select"
-        element={
-          <AuthGate>
-            <HostelSelect />
-          </AuthGate>
-        }
-      />
-
-      <Route
-        path="/dashboard"
-        element={
-          <AuthGate>
-            <Dashboard />
-          </AuthGate>
-        }
-      />
-
-      <Route path="/mess" element={<ProtectedRoute><MessMenu /></ProtectedRoute>} />
-      <Route path="/complaints" element={<ProtectedRoute><Complaints /></ProtectedRoute>} />
-      <Route path="/notices" element={<ProtectedRoute><Notices /></ProtectedRoute>} />
-      <Route path="/laundry" element={<ProtectedRoute><Laundry /></ProtectedRoute>} />
-      <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
-
-      {/* ADMIN FLOW */}
-      <Route
-        path="/admin"
-        element={
-          <AdminRoute>
-            <AdminDashboard />
-          </AdminRoute>
-        }
-      />
-
-      <Route
-        path="/admin/complaints"
-        element={
-          <AdminRoute>
-            <AdminComplaints />
-          </AdminRoute>
-        }
-      />
-
-      <Route
-        path="/admin/notices"
-        element={
-          <AdminRoute>
-            <AdminNotices />
-          </AdminRoute>
-        }
-      />
-
+      <Route path="/hostel-select" element={<HostelSelect />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/mess" element={<MessMenu />} />
+      <Route path="/complaints" element={<Complaints />} />
+      <Route path="/notices" element={<Notices />} />
+      <Route path="/laundry" element={<Laundry />} />
+      <Route path="/services" element={<Services />} />
     </Routes>
   );
 }
