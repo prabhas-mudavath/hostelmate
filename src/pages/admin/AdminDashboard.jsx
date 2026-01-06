@@ -38,3 +38,32 @@ function Card({ icon: Icon, label, value }) {
     </div>
   );
 }
+import { AlertCircle, CheckCircle, Users } from "lucide-react";
+
+export default function AdminDashboard() {
+  const stats = [
+    { label: "Open Complaints", value: 12, icon: AlertCircle },
+    { label: "Resolved", value: 34, icon: CheckCircle },
+    { label: "Total Students", value: 420, icon: Users },
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-50 p-6 fade-in">
+      <h1 className="text-2xl font-semibold mb-6">Admin Dashboard</h1>
+
+      <div className="grid grid-cols-3 gap-4">
+        {stats.map((s) => (
+          <div
+            key={s.label}
+            className="bg-white p-4 rounded-xl shadow-sm
+                       hover:shadow-lg transition"
+          >
+            <s.icon className="text-blue-600 mb-2" />
+            <p className="text-xl font-semibold">{s.value}</p>
+            <p className="text-sm text-gray-500">{s.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

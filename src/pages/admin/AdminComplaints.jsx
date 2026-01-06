@@ -10,7 +10,6 @@ export default function AdminComplaints() {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  /* ================= FETCH COMPLAINTS ================= */
   const fetchComplaints = async () => {
     try {
       const res = await fetch(`${API}/api/admin/complaints`, {
@@ -29,7 +28,6 @@ export default function AdminComplaints() {
     fetchComplaints();
   }, []);
 
-  /* ================= UPDATE STATUS ================= */
   const updateStatus = async (id, status) => {
     await fetch(`${API}/api/admin/complaints/${id}`, {
       method: "PATCH",
@@ -39,13 +37,11 @@ export default function AdminComplaints() {
       },
       body: JSON.stringify({ status }),
     });
-
     fetchComplaints();
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 max-w-5xl mx-auto">
-      {/* HEADER */}
+    <div className="min-h-screen bg-slate-50 p-6 max-w-5xl mx-auto fade-in">
       <div className="flex items-center gap-2 mb-6">
         <Wrench className="text-blue-600" />
         <h1 className="text-2xl font-semibold">Admin Complaints</h1>
@@ -65,7 +61,6 @@ export default function AdminComplaints() {
                 key={c._id}
                 className="bg-white p-5 rounded-xl shadow-sm border"
               >
-                {/* TOP ROW */}
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-medium">{c.title}</h3>
@@ -87,25 +82,20 @@ export default function AdminComplaints() {
                   </select>
                 </div>
 
-                {/* DESCRIPTION */}
                 <p className="text-sm text-gray-600 mt-3">
                   {c.description}
                 </p>
 
-                {/* TIMELINE */}
                 <div className="flex items-center mt-5">
                   {STATUS_STEPS.map((step, index) => (
-                    <div
-                      key={step}
-                      className="flex items-center flex-1"
-                    >
+                    <div key={step} className="flex items-center flex-1">
                       <div
                         className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium
                           ${
                             index <= currentStep
                               ? "bg-blue-600 text-white"
                               : "bg-gray-300 text-gray-600"
-                          } transition-all duration-300`}
+                          } transition-all`}
                       >
                         {index + 1}
                       </div>
@@ -117,17 +107,10 @@ export default function AdminComplaints() {
                               index < currentStep
                                 ? "bg-blue-600"
                                 : "bg-gray-300"
-                            } transition-all duration-300`}
+                            }`}
                         />
                       )}
                     </div>
-                  ))}
-                </div>
-
-                {/* LABELS */}
-                <div className="flex justify-between text-xs text-gray-500 mt-2">
-                  {STATUS_STEPS.map((s) => (
-                    <span key={s}>{s}</span>
                   ))}
                 </div>
               </div>
