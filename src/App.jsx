@@ -7,30 +7,54 @@ import Complaints from "./pages/Complaints";
 import Notices from "./pages/Notices";
 import Laundry from "./pages/Laundry";
 import Services from "./pages/Services";
-import AddComplaint from "./pages/AddComplaint";
-/* ADMIN */
-import AdminRoute from "./components/AdminRoute";
+
+import UserLogin from "./pages/UserLogin";
+import AdminLogin from "./pages/AdminLogin";
+
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminNotices from "./pages/admin/AdminNotices";
 import AdminComplaints from "./pages/admin/AdminComplaints";
-import MyRequests from "./pages/MyRequests";
+import AdminNotices from "./pages/admin/AdminNotices";
+
+import AdminRoute from "./components/AdminRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/hostel-select" />} />
 
-      {/* USER ROUTES */}
-      <Route path="/hostel-select" element={<HostelSelect />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/mess" element={<MessMenu />} />
-      <Route path="/complaints" element={<Complaints />} />
-      <Route path="/notices" element={<Notices />} />
-      <Route path="/laundry" element={<Laundry />} />
-      <Route path="/services" element={<Services />} />
-      <Route path="/add-complaint" element={<AddComplaint />} />
-      <Route path="/my-requests" element={<MyRequests />} />
+      {/* DEFAULT */}
+      <Route path="/" element={<Navigate to="/login" />} />
 
-      {/* ADMIN ROUTES */}
+      {/* AUTH */}
+      <Route path="/login" element={<UserLogin />} />
+      <Route path="/admin-login" element={<AdminLogin />} />
+
+      {/* USER FLOW */}
+      <Route
+        path="/hostel-select"
+        element={
+          <ProtectedRoute>
+            <HostelSelect />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="/mess" element={<ProtectedRoute><MessMenu /></ProtectedRoute>} />
+      <Route path="/complaints" element={<ProtectedRoute><Complaints /></ProtectedRoute>} />
+      <Route path="/notices" element={<ProtectedRoute><Notices /></ProtectedRoute>} />
+      <Route path="/laundry" element={<ProtectedRoute><Laundry /></ProtectedRoute>} />
+      <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
+
+      {/* ADMIN FLOW */}
       <Route
         path="/admin"
         element={
@@ -39,14 +63,7 @@ export default function App() {
           </AdminRoute>
         }
       />
-      <Route
-        path="/admin/notices"
-        element={
-          <AdminRoute>
-            <AdminNotices />
-          </AdminRoute>
-        }
-      />
+
       <Route
         path="/admin/complaints"
         element={
@@ -55,6 +72,16 @@ export default function App() {
           </AdminRoute>
         }
       />
+
+      <Route
+        path="/admin/notices"
+        element={
+          <AdminRoute>
+            <AdminNotices />
+          </AdminRoute>
+        }
+      />
+
     </Routes>
   );
 }
