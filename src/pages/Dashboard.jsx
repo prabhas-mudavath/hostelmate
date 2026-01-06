@@ -17,7 +17,7 @@ export default function Dashboard() {
   const { state } = useLocation();
 
   /* ---------------- AUTH / ROLE ---------------- */
-  const role = localStorage.getItem("role");
+  const role = localStorage.getItem("role"); 
   const isAdmin = role === "warden" || role === "chief";
 
   /* ---------------- HOSTEL DATA ---------------- */
@@ -147,7 +147,6 @@ export default function Dashboard() {
             icon={ListChecks}
             onClick={() => navigate("/my-requests")}
           />
-
         </div>
       </div>
     </div>
