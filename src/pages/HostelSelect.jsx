@@ -39,7 +39,7 @@ export default function HostelSelect() {
   );
 
   return (
-    <div className="min-h-screen bg-background flex justify-center">
+    <div className="fade-in min-h-screen bg-background flex justify-center">
       <div className="w-full max-w-md px-4 pt-10 pb-10">
 
         <h1 className="text-2xl font-semibold text-center">HostelMate</h1>

@@ -21,7 +21,7 @@ export default function Services() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex justify-center">
+    <div className="fade-in min-h-screen bg-slate-50 flex justify-center">
       <div className="w-full max-w-md px-4 pt-6">
 
         <h1 className="text-xl font-semibold mb-4">
@@ -34,7 +34,8 @@ export default function Services() {
               key={s}
               onClick={() => requestService(s)}
               className="bg-white rounded-lg p-3 shadow-sm
-                         text-left hover:bg-gray-50"
+                         text-left hover:bg-gray-50 active:scale-95 transition-transform duration-150
+"
             >
               {s}
             </button>

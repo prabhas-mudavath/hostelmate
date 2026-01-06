@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { ListChecks } from "lucide-react";
 
 
 import {
@@ -15,6 +16,17 @@ import {
 export default function Dashboard() {
   const navigate = useNavigate();
   const { state } = useLocation();
+  {
+    isAdmin && (
+      <DashboardCard
+        title="Admin Panel"
+        subtitle="Manage hostel"
+        icon={Shield}
+        onClick={() => navigate("/admin")}
+      />
+    )
+  }
+
 
   /* ---------------- HOSTEL DATA (REFRESH SAFE) ---------------- */
 
@@ -54,7 +66,7 @@ export default function Dashboard() {
         : "Good Evening";
 
   return (
-    <div className="min-h-screen bg-slate-50 flex justify-center">
+    <div className=" fade-in min-h-screen bg-slate-50 flex justify-center">
       <div className="w-full max-w-md px-4 pt-6 pb-10">
 
         {/* HEADER */}
@@ -140,6 +152,13 @@ export default function Dashboard() {
               navigate("/laundry", { state: { hostelId } })
             }
           />
+          <DashboardCard
+            title="My Requests"
+            subtitle="Track services"
+            icon={ListChecks}
+            onClick={() => navigate("/my-requests")}
+          />
+
         </div>
 
       </div>
@@ -166,7 +185,7 @@ function DashboardCard({ title, subtitle, icon: Icon, onClick }) {
     <div
       onClick={onClick}
       className="bg-white rounded-2xl p-4 shadow-sm cursor-pointer
-                 transition-all hover:shadow-md hover:-translate-y-0.5
+                 transition-all hover:shadow-lg hover:-translate-y-1 
                  active:scale-95"
     >
       <Icon className="w-6 h-6 text-blue-600" />

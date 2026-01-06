@@ -1,47 +1,40 @@
 import { useEffect, useState } from "react";
-import AdminSidebar from "./AdminSidebar.jsx";
+import { AlertCircle, CheckCircle, Shirt, Wrench } from "lucide-react";
 
 export default function AdminDashboard() {
-  const [pendingCount, setPendingCount] = useState(0);
+  const [stats, setStats] = useState(null);
+  const API = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    const fetchPendingCount = async () => {
-      try {
-        const token = localStorage.getItem("token");
-
-        const [laundry, services] = await Promise.all([
-          fetch("http://localhost:5000/api/laundry", {
-            headers: { Authorization: token },
-          }).then((r) => r.json()),
-
-          fetch("http://localhost:5000/api/services", {
-            headers: { Authorization: token },
-          }).then((r) => r.json()),
-        ]);
-
-        const count =
-          laundry.filter((l) => l.status === "Pending").length +
-          services.filter((s) => s.status === "Pending").length;
-
-        setPendingCount(count);
-      } catch (err) {
-        console.error("Failed to fetch pending count");
-      }
-    };
-
-    fetchPendingCount();
+    fetch(`${API}/api/admin/dashboard`, {
+      headers: { Authorization: localStorage.getItem("token") },
+    })
+      .then((r) => r.json())
+      .then(setStats);
   }, []);
 
-  return (
-    <div className="flex">
-      {/* PASS COUNT TO SIDEBAR */}
-      <AdminSidebar pendingCount={pendingCount} />
+  if (!stats) return <p className="p-6">Loading...</p>;
 
-      {/* MAIN CONTENT */}
-      <div className="flex-1 p-6">
-        <h1 className="text-2xl font-semibold">Admin Dashboard</h1>
-        {/* rest of dashboard content */}
+  return (
+    <div className="p-6 max-w-5xl mx-auto">
+      <h1 className="text-2xl font-semibold mb-6">Admin Dashboard</h1>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card icon={AlertCircle} label="Open Complaints" value={stats.openComplaints} />
+        <Card icon={CheckCircle} label="Resolved" value={stats.resolvedComplaints} />
+        <Card icon={Shirt} label="Laundry Requests" value={stats.laundryPending} />
+        <Card icon={Wrench} label="Service Requests" value={stats.servicePending} />
       </div>
+    </div>
+  );
+}
+
+function Card({ icon: Icon, label, value }) {
+  return (
+    <div className="bg-white p-4 rounded-xl shadow-sm">
+      <Icon className="text-blue-600 mb-2" />
+      <p className="text-lg font-semibold">{value}</p>
+      <p className="text-sm text-gray-500">{label}</p>
     </div>
   );
 }

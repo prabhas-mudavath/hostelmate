@@ -6,10 +6,14 @@ const AdminSchema = new mongoose.Schema(
     password: String,
     role: {
       type: String,
-      default: "admin",
+      enum: ["warden", "chief"],
+      default: "warden",
     },
-  },
-  { timestamps: true }
+    hostelId: {
+      type: String, // SSB, CVR, ALL
+      default: "ALL",
+    },
+  }
 );
 
 export default mongoose.model("Admin", AdminSchema);

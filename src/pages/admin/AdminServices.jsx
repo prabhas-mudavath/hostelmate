@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
-import { TickIcon, CrossIcon } from "../../components/StatusIcon";
+import { Wrench, CheckCircle } from "lucide-react";
 
-function AdminServices() {
-  const [data, setData] = useState([]);
+const STATUS = ["Pending", "In Progress", "Completed", "Rejected"];
+
+export default function AdminServices() {
+  const API = import.meta.env.VITE_API_URL;
+  const token = localStorage.getItem("token");
+
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchServices = async () => {
-    const res = await fetch("http://localhost:5000/api/services", {
-      headers: {
-        Authorization: localStorage.getItem("token")
-      }
+    const res = await fetch(`${API}/api/admin/services`, {
+      headers: { Authorization: token },
     });
-    setData(await res.json());
+    const data = await res.json();
+    setServices(data);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -18,34 +24,59 @@ function AdminServices() {
   }, []);
 
   const updateStatus = async (id, status) => {
-    await fetch(`http://localhost:5000/api/services/${id}`, {
-      method: "PUT",
+    await fetch(`${API}/api/admin/services/${id}`, {
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: localStorage.getItem("token")
+        Authorization: token,
       },
-      body: JSON.stringify({ status })
+      body: JSON.stringify({ status }),
     });
     fetchServices();
   };
 
+  if (loading) return <p className="p-6">Loading services…</p>;
+
   return (
-    <div className="space-y-2">
-      {data.map((s) => (
-        <div key={s._id} className="border p-3 flex justify-between">
-          <span>{s.serviceType} — {s.status}</span>
-          <div className="flex gap-2">
-            <button onClick={() => updateStatus(s._id, "Completed")}>
-              <TickIcon />
-            </button>
-            <button onClick={() => updateStatus(s._id, "Rejected")}>
-              <CrossIcon />
-            </button>
+    <div className="p-6 max-w-5xl mx-auto">
+      <h1 className="text-2xl font-semibold mb-6 flex items-center gap-2">
+        <Wrench className="text-blue-600" />
+        Service Management
+      </h1>
+
+      <div className="space-y-4">
+        {services.map((s) => (
+          <div
+            key={s._id}
+            className="bg-white p-4 rounded-xl shadow-sm border"
+          >
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-medium">{s.serviceType}</h3>
+                <p className="text-sm text-gray-500">
+                  Hostel {s.hostelId}
+                </p>
+              </div>
+
+              <select
+                value={s.status}
+                onChange={(e) =>
+                  updateStatus(s._id, e.target.value)
+                }
+                className="border px-2 py-1 rounded"
+              >
+                {STATUS.map((st) => (
+                  <option key={st}>{st}</option>
+                ))}
+              </select>
+            </div>
+
+            <p className="text-sm text-gray-600 mt-2">
+              Requested by: {s.userName || "Student"}
+            </p>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
-
-export default AdminServices;

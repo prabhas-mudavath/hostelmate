@@ -40,7 +40,7 @@ export default function Notices() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
+      <div className="fade-in min-h-screen flex items-center justify-center text-gray-500">
         Loading notices...
       </div>
     );
@@ -48,14 +48,14 @@ export default function Notices() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-red-500">
+      <div className="fade-in min-h-screen flex items-center justify-center text-red-500">
         {error}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex justify-center">
+    <div className="fade-in min-h-screen bg-slate-50 flex justify-center">
       <div className="w-full max-w-md px-4 pt-6 pb-10">
 
         {/* Header */}

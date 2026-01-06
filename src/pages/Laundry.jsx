@@ -83,7 +83,7 @@ export default function Laundry() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex justify-center">
+    <div className="fade-in min-h-screen bg-slate-50 flex justify-center">
       <div className="w-full max-w-md px-4 pt-6 pb-10">
 
         {/* Header */}
@@ -126,7 +126,8 @@ export default function Laundry() {
           <button
             onClick={requestLaundry}
             disabled={loadingLaundry}
-            className={`mt-4 w-full py-2 rounded-lg text-sm text-white
+            className={`mt-4 w-full py-2 rounded-lg text-sm text-white active:scale-95 transition-transform duration-150
+
               ${
                 loadingLaundry
                   ? "bg-gray-400 cursor-not-allowed"

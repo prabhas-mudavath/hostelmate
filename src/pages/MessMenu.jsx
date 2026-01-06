@@ -46,7 +46,7 @@ export default function MessMenu() {
   const [day, setDay] = useState(days[0]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex justify-center">
+    <div className="fade-in min-h-screen bg-slate-50 flex justify-center">
       <div className="w-full max-w-md px-4 pt-6 pb-10">
 
         {/* HEADER */}
@@ -79,7 +79,8 @@ export default function MessMenu() {
             <button
               key={d}
               onClick={() => setDay(d)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all
+              className={`px-4 py-1.5 rounded-full text-sm font-medium  active:scale-95 transition-transform duration-150
+
                 ${day === d
                   ? "bg-blue-600 text-white"
                   : "bg-white text-gray-600 border"

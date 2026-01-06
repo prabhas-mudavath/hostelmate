@@ -40,14 +40,14 @@ export default function Complaints() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
+      <div className="fade-in min-h-screen flex items-center justify-center text-gray-500">
         Loading complaints...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex justify-center">
+    <div className="fade-in min-h-screen bg-slate-50 flex justify-center">
       <div className="w-full max-w-md px-4 pt-6 pb-10">
 
         {/* Header */}
@@ -62,10 +62,12 @@ export default function Complaints() {
           {/* Add Complaint */}
           <button
             onClick={() => navigate("/add-complaint")}
-            className="bg-blue-600 text-white p-2 rounded-full
-                       active:scale-95"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg
+           hover:bg-blue-700
+           active:scale-95 transition-transform duration-150"
+
           >
-            <Plus size={18} />
+            + Add Complaint
           </button>
         </div>
 
@@ -132,4 +134,6 @@ export default function Complaints() {
       </div>
     </div>
   );
+
+
 }

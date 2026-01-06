@@ -1,126 +1,140 @@
-import { useState } from "react";
-import { Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Wrench } from "lucide-react";
 
-/* ---------- MOCK DATA (ADMIN VIEW) ---------- */
-const ALL_COMPLAINTS = [
-  {
-    id: 1,
-    hostel: "SSB Hall",
-    title: "Water leakage",
-    category: "Plumbing",
-    status: "Raised",
-    date: "10 Sep 2025",
-  },
-  {
-    id: 2,
-    hostel: "CVR Hall",
-    title: "Mess food quality",
-    category: "Mess",
-    status: "In Progress",
-    date: "11 Sep 2025",
-  },
-  {
-    id: 3,
-    hostel: "KMS Hall",
-    title: "Washing machine not working",
-    category: "Laundry",
-    status: "Resolved",
-    date: "09 Sep 2025",
-  },
-];
+const STATUS_STEPS = ["Raised", "In Progress", "Resolved"];
 
-/* ---------- COMPONENT ---------- */
 export default function AdminComplaints() {
-  const [complaints, setComplaints] = useState(ALL_COMPLAINTS);
+  const API = import.meta.env.VITE_API_URL;
+  const token = localStorage.getItem("token");
 
-  const updateStatus = (id) => {
-    setComplaints((prev) =>
-      prev.map((c) =>
-        c.id === id
-          ? {
-              ...c,
-              status:
-                c.status === "Raised"
-                  ? "In Progress"
-                  : c.status === "In Progress"
-                  ? "Resolved"
-                  : "Resolved",
-            }
-          : c
-      )
-    );
+  const [complaints, setComplaints] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  /* ================= FETCH COMPLAINTS ================= */
+  const fetchComplaints = async () => {
+    try {
+      const res = await fetch(`${API}/api/admin/complaints`, {
+        headers: { Authorization: token },
+      });
+      const data = await res.json();
+      setComplaints(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchComplaints();
+  }, []);
+
+  /* ================= UPDATE STATUS ================= */
+  const updateStatus = async (id, status) => {
+    await fetch(`${API}/api/admin/complaints/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    fetchComplaints();
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
-      <h1 className="text-2xl font-semibold mb-6">
-        Admin • Complaints Management
-      </h1>
-
-      <div className="space-y-4">
-        {complaints.map((c) => (
-          <div
-            key={c.id}
-            className="bg-white rounded-2xl p-4 shadow-sm"
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-medium">{c.title}</h3>
-                <p className="text-sm text-gray-500">
-                  {c.category} • {c.hostel}
-                </p>
-              </div>
-
-              <StatusBadge status={c.status} />
-            </div>
-
-            <div className="flex justify-between items-center mt-3">
-              <p className="text-xs text-gray-500 flex items-center gap-1">
-                <Clock size={14} />
-                {c.date}
-              </p>
-
-              {c.status !== "Resolved" && (
-                <button
-                  onClick={() => updateStatus(c.id)}
-                  className="text-xs text-blue-600 underline"
-                >
-                  Update Status
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
+    <div className="min-h-screen bg-slate-50 p-6 max-w-5xl mx-auto">
+      {/* HEADER */}
+      <div className="flex items-center gap-2 mb-6">
+        <Wrench className="text-blue-600" />
+        <h1 className="text-2xl font-semibold">Admin Complaints</h1>
       </div>
+
+      {loading ? (
+        <p className="text-gray-500">Loading complaints...</p>
+      ) : complaints.length === 0 ? (
+        <p className="text-gray-500">No complaints found</p>
+      ) : (
+        <div className="space-y-6">
+          {complaints.map((c) => {
+            const currentStep = STATUS_STEPS.indexOf(c.status);
+
+            return (
+              <div
+                key={c._id}
+                className="bg-white p-5 rounded-xl shadow-sm border"
+              >
+                {/* TOP ROW */}
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-medium">{c.title}</h3>
+                    <p className="text-sm text-gray-500">
+                      {c.category} • Hostel {c.hostelId}
+                    </p>
+                  </div>
+
+                  <select
+                    value={c.status}
+                    onChange={(e) =>
+                      updateStatus(c._id, e.target.value)
+                    }
+                    className="border rounded px-2 py-1 text-sm"
+                  >
+                    {STATUS_STEPS.map((s) => (
+                      <option key={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* DESCRIPTION */}
+                <p className="text-sm text-gray-600 mt-3">
+                  {c.description}
+                </p>
+
+                {/* TIMELINE */}
+                <div className="flex items-center mt-5">
+                  {STATUS_STEPS.map((step, index) => (
+                    <div
+                      key={step}
+                      className="flex items-center flex-1"
+                    >
+                      <div
+                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium
+                          ${
+                            index <= currentStep
+                              ? "bg-blue-600 text-white"
+                              : "bg-gray-300 text-gray-600"
+                          } transition-all duration-300`}
+                      >
+                        {index + 1}
+                      </div>
+
+                      {index < STATUS_STEPS.length - 1 && (
+                        <div
+                          className={`flex-1 h-1 mx-2 rounded
+                            ${
+                              index < currentStep
+                                ? "bg-blue-600"
+                                : "bg-gray-300"
+                            } transition-all duration-300`}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* LABELS */}
+                <div className="flex justify-between text-xs text-gray-500 mt-2">
+                  {STATUS_STEPS.map((s) => (
+                    <span key={s}>{s}</span>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
-
-/* ---------- STATUS BADGE ---------- */
-function StatusBadge({ status }) {
-  if (status === "Resolved") {
-    return (
-      <span className="flex items-center gap-1 text-xs px-3 py-1 rounded-full
-                       bg-green-100 text-green-700">
-        <CheckCircle size={14} /> Resolved
-      </span>
-    );
-  }
-
-  if (status === "In Progress") {
-    return (
-      <span className="flex items-center gap-1 text-xs px-3 py-1 rounded-full
-                       bg-yellow-100 text-yellow-700">
-        <AlertCircle size={14} /> In Progress
-      </span>
-    );
-  }
-
-  return (
-    <span className="flex items-center gap-1 text-xs px-3 py-1 rounded-full
-                     bg-red-100 text-red-700">
-      <AlertCircle size={14} /> Raised
-    </span>
-  );
-}
-
