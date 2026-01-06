@@ -1,11 +1,10 @@
 import express from "express";
 import authMiddleware from "../middleware/authMiddleware.js";
-import adminMiddleware from "../middleware/adminMiddleware.js";
 import Complaint from "../models/Complaints.js";
 
 const router = express.Router();
 
-/* USER: ADD COMPLAINT */
+/* CREATE COMPLAINT (STUDENT) */
 router.post("/", authMiddleware, async (req, res) => {
   try {
     const complaint = await Complaint.create({
@@ -15,16 +14,15 @@ router.post("/", authMiddleware, async (req, res) => {
     });
     res.status(201).json(complaint);
   } catch (err) {
-    res.status(500).json({ message: "Failed to add complaint" });
+    res.status(500).json({ message: "Failed to create complaint" });
   }
 });
 
-/* ADMIN: VIEW ALL COMPLAINTS */
-router.get("/", async (req, res) => {
-  const { hostelId } = req.query;
-  const complaints = await Complaint.find({ hostelId });
+/* GET USER COMPLAINTS */
+router.get("/", authMiddleware, async (req, res) => {
+  const complaints = await Complaint.find({ userId: req.user.id })
+    .sort({ createdAt: -1 });
   res.json(complaints);
 });
-
 
 export default router;

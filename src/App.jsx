@@ -7,6 +7,7 @@ import Complaints from "./pages/Complaints";
 import Notices from "./pages/Notices";
 import Laundry from "./pages/Laundry";
 import Services from "./pages/Services";
+import MyRequests from "./pages/MyRequests";
 
 export default function App() {
   return (
@@ -20,6 +21,8 @@ export default function App() {
       <Route path="/notices" element={<Notices />} />
       <Route path="/laundry" element={<Laundry />} />
       <Route path="/services" element={<Services />} />
+      <Route path="/my-requests" element={<MyRequests />} />
+
     </Routes>
   );
 }
