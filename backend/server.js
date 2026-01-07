@@ -3,32 +3,37 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 dotenv.config();
-
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://hostelmate-two.vercel.app",
+];
 const app = express();
 
 /* ================= CORS (FINAL, SAFE) ================= */
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // allow requests with no origin (Postman, Render health checks)
-      if (!origin) return callback(null, true);
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
 
-      const allowedOrigins = [
-        "http://localhost:5173",
-        "https://hostelmate-two.vercel.app",
-      ];
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
 
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS not allowed"));
-      }
-    },
-    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  // 🔥 THIS IS THE KEY LINE
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
 
 /* 🔥 VERY IMPORTANT — handle preflight */
 app.options("*", cors());
