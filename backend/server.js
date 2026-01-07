@@ -9,10 +9,21 @@ const app = express();
 /* ================= CORS (FINAL, SAFE) ================= */
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://hostelmate-two.vercel.app",
-    ],
+    origin: function (origin, callback) {
+      // allow requests with no origin (Postman, Render health checks)
+      if (!origin) return callback(null, true);
+
+      const allowedOrigins = [
+        "http://localhost:5173",
+        "https://hostelmate-two.vercel.app",
+      ];
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed"));
+      }
+    },
     methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
