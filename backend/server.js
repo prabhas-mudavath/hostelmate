@@ -1,6 +1,6 @@
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
+
 
 dotenv.config();
 const allowedOrigins = [
@@ -10,6 +10,8 @@ const allowedOrigins = [
 const app = express();
 
 /* ================= CORS (FINAL, SAFE) ================= */
+
+
 app.use((req, res, next) => {
   const origin = req.headers.origin;
 
@@ -17,17 +19,11 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
 
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization"
-  );
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
-  // 🔥 THIS IS THE KEY LINE
+  // 🔥 THIS IS REQUIRED FOR PREFLIGHT
   if (req.method === "OPTIONS") {
     return res.sendStatus(200);
   }
@@ -35,8 +31,6 @@ app.use((req, res, next) => {
   next();
 });
 
-/* 🔥 VERY IMPORTANT — handle preflight */
-app.options("*", cors());
 
 app.use(express.json());
 
